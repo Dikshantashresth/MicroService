@@ -1,5 +1,4 @@
-﻿using AuthService.DTO;
-using AuthService.Model;
+﻿using AuthService.Model;
 
 namespace AuthService.Repository
 {
@@ -7,7 +6,7 @@ namespace AuthService.Repository
     {
         Task AddAsync(User entity);
         Task<User> GetByEmail(string email);
-        
+
 
     }
 }

@@ -1,35 +1,43 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
 using TaskService.Data;
 using TaskService.Repository;
-using FluentValidation;
 using TaskService.Services;
+using System.Text;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
-
-
 builder.Services.AddScoped<ITaskService, TaskServices>();
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 builder.Services.AddScoped<IUnitofWork, UnitOfWork>();
-
 builder.Services.AddHttpContextAccessor();
-
-// Configure the HTTP request pipeline.
-var app = builder.Build();
-if (app.Environment.IsDevelopment())
+builder.Services.AddAuthorization(options =>
 {
-    app.MapOpenApi();
-}
+    options.AddPolicy("TrustedGatewayOnly", policy =>
+    {
+        policy.RequireAssertion(context =>
+        {
+            var httpContext = builder.Services.BuildServiceProvider()
+                .GetRequiredService<IHttpContextAccessor>().HttpContext;
 
-app.UseHttpsRedirection();
+            if (httpContext == null) return false;
 
+            // 1. Ensure the user identity header injected by Ocelot exists
+            var hasUserHeader = httpContext.Request.Headers.TryGetValue("X-User-Id", out var userId);
+
+            return hasUserHeader && !string.IsNullOrWhiteSpace(userId);
+        });
+    });
+});
+var app = builder.Build();
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
 app.Run();

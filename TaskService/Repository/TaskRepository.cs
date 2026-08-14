@@ -1,5 +1,4 @@
 ﻿using TaskService.Data;
-using Microsoft.EntityFrameworkCore;
 using TaskService.Model;
 
 namespace TaskService.Repository
@@ -12,6 +11,10 @@ namespace TaskService.Repository
             _context = context;
 
         }
+        public async Task AddAsync(TaskModel Task)
+        {
+            await _context.AddAsync(Task);
+        }
         public async Task DeletedAsync(TaskModel tasks)
         {
             _context.Remove(tasks);
@@ -19,7 +22,7 @@ namespace TaskService.Repository
 
         public async Task<List<TaskModel>> GetAllAsync(string id)
         {
-            var res =  _context.tasks.ToList();
+            var res = _context.tasks.ToList();
             return res;
         }
 

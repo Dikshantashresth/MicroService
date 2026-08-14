@@ -4,7 +4,7 @@ using AuthService.Data;
 
 namespace AuthService.Repository
 {
-    public class UnitOfWork:IUnitofWork
+    public class UnitOfWork : IUnitofWork
     {
         private readonly AppDbContext _context;
         public IAuthRepository Users { get; set; }

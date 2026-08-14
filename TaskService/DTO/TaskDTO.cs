@@ -6,6 +6,6 @@
         public DateTime Deadline { get; set; }
     }
 
-    
+
 }
 

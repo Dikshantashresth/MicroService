@@ -1,11 +1,9 @@
-﻿using AuthService.DTO;
-using AuthService.Model;
+﻿using AuthService.Model;
 using FluentValidation;
-using Microsoft.AspNetCore.Identity.Data;
 
 namespace AuthService.Validation
 {
-    public class RegisterRequestValidation:AbstractValidator<User>
+    public class RegisterRequestValidation : AbstractValidator<User>
     {
         public RegisterRequestValidation()
         {
@@ -14,7 +12,7 @@ namespace AuthService.Validation
                 .MinimumLength(3).WithMessage("Name must be more than 3 characters.")
                 .MaximumLength(10).WithMessage("Name must be less than 20 characters.");
 
-            
+
             RuleFor(x => x.Email)
                 .NotEmpty().WithMessage("Email is required")
                 .EmailAddress().WithMessage("Invalid email format");

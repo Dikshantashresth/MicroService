@@ -13,7 +13,7 @@
       "UpstreamHttpMethod": [ "GET", "POST", "DELETE" ]
     },
     {
-      "DownstreamPathTemplate": "/api/task/{everything}",
+      "DownstreamPathTemplate": "/api/tasks",
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
@@ -21,15 +21,38 @@
           "Port": 5003
         }
       ],
-      "UpstreamPathTemplate": "/api/task/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST", "DELETE", "UPDATE" ],
+      "UpstreamPathTemplate": "/api/tasks",
+      "UpstreamHttpMethod": [ "GET", "POST", "DELETE", "PUT" ],
       "AuthenticationOptions": {
-        "AuthenticationProviderKeys": [ "GatewayJwt" ]
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
       },
       "ClaimsToHeaders": {
-        "X-user-Id": "UserType"
+        "X-User-Id": "Claims[http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier] > value",
+        "X-User-Email": "Claims[http://xmlsoap.org] > value"
       }
-     
+
+    },
+    {
+      "DownstreamPathTemplate": "/api/tasks/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5003
+        }
+      ],
+      "UpstreamPathTemplate": "/api/tasks/{everything}",
+      "UpstreamHttpMethod": [ "GET", "POST", "DELETE", "PUT" ],
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+      "ClaimsToHeaders": {
+        "X-User-Id": "Claims[http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier] > value",
+        "X-User-Email": "Claims[http://xmlsoap.org] > value"
+      }
+
     }
   ],
   "GlobalConfiguration": {

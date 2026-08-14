@@ -1,13 +1,12 @@
 ﻿using TaskService.Data;
-using TaskService.Repository;
 
 namespace TaskService.Repository
 {
     public class UnitOfWork : IUnitofWork
     {
-       public ITaskRepository Tasks { get; set; }
+        public ITaskRepository Tasks { get; set; }
         private readonly AppDbContext _context;
-       public UnitOfWork(AppDbContext context)
+        public UnitOfWork(AppDbContext context)
         {
             _context = context;
             Tasks = new TaskRepository(_context);

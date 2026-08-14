@@ -1,10 +1,8 @@
 ﻿using AuthService.DTO;
-using AuthService.Repository;
-using BCrypt.Net;
-using FluentValidation;
 using AuthService.Helpers;
-using System.Linq;
 using AuthService.Model;
+using AuthService.Repository;
+using FluentValidation;
 
 namespace AuthService.Services
 {
@@ -14,12 +12,14 @@ namespace AuthService.Services
         private readonly IValidator<User> _reqvalidator;
         private readonly IUnitofWork _unitofwork;
         private readonly ITokenHelper _tokenhelper;
-        public AuthServices(ITokenHelper tokenhelper, IUnitofWork unitofWork, IValidator<LoginReq> loginvalidator, IValidator<User> reqvalidator)
+        private readonly ILogger<AuthServices> _logger;
+        public AuthServices(ILogger<AuthServices> logger, ITokenHelper tokenhelper, IUnitofWork unitofWork, IValidator<LoginReq> loginvalidator, IValidator<User> reqvalidator)
         {
             _unitofwork = unitofWork;
             _tokenhelper = tokenhelper;
             _loginvalidator = loginvalidator;
             _reqvalidator = reqvalidator;
+            _logger = logger;
         }
 
         public async Task<ApiResponse> LoginAsync(LoginReq entity)
@@ -29,7 +29,7 @@ namespace AuthService.Services
             {
                 var error = validationResult.Errors.Select(x => x.ErrorMessage);
                 var message = string.Join("; ", error);
-                return new ApiResponse(400,message);
+                return new ApiResponse(400, message);
             }
 
             var userExists = await _unitofwork.Users.GetByEmail(entity.Email);
@@ -38,8 +38,9 @@ namespace AuthService.Services
 
             bool passwordMatches = BCrypt.Net.BCrypt.Verify(entity.Password, userExists.Password);
             if (!passwordMatches)
-                return new ApiResponse(401,"Invalid Email or Password");
+                return new ApiResponse(401, "Invalid Email or Password");
             var token = _tokenhelper.GenerateJwtToken(userExists);
+            _logger.LogInformation(token);
             var result = new LoginRes
             {
                 Name = userExists.Name,
@@ -49,7 +50,7 @@ namespace AuthService.Services
 
             return new ApiResponse(result, "Sucessfully Registered", 200);
         }
-
+       
         public async Task<ApiResponse> RegisterAsync(User entity)
         {
             var validationResult = await _reqvalidator.ValidateAsync(entity);
@@ -57,10 +58,12 @@ namespace AuthService.Services
             {
                 var error = validationResult.Errors.Select(t => t.ErrorMessage);
                 var message = string.Join("|", error);
+                _logger.LogError(message);
                 return new ApiResponse(400, message);
             }
+
             var userExists = await _unitofwork.Users.GetByEmail(entity.Email);
-            if (userExists !=null) return new ApiResponse(400, "Please Login User Already Exists");
+            if (userExists != null) return new ApiResponse(409, "Please Login User Already Exists");
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(entity.Password);
             entity.Password = hashedPassword;
             await _unitofwork.Users.AddAsync(entity);

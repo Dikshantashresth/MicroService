@@ -1,5 +1,4 @@
 ﻿using AuthService.Data;
-using AuthService.DTO;
 using AuthService.Model;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,12 +13,12 @@ namespace AuthService.Repository
         }
         public async Task AddAsync(User entity)
         {
-             await _context.AddAsync(entity);
+            await _context.AddAsync(entity);
         }
-        
+
         public async Task<User?> GetByEmail(string Email)
         {
-            return await _context.users.FirstOrDefaultAsync(u => u.Email == Email);   
+            return await _context.users.FirstOrDefaultAsync(u => u.Email == Email);
         }
     }
 }

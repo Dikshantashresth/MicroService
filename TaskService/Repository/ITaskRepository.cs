@@ -6,6 +6,7 @@ namespace TaskService.Repository
     {
         Task<List<TaskModel>> GetAllAsync(string id);
         Task<TaskModel?> GetByIdAsync(string id);
+        Task AddAsync(TaskModel taskentity);
         Task DeletedAsync(TaskModel entity);
         Task UpdateAsync(TaskModel entity);
     }
