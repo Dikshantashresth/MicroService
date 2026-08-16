@@ -28,10 +28,10 @@
         "AllowedScopes": []
       },
       "ClaimsToHeaders": {
-        "X-User-Id": "Claims[http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier] > value",
-        "X-User-Email": "Claims[http://xmlsoap.org] > value"
+        "X-User-Id": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier",
+        "X-Username": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
+        "X-User-Email": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
       }
-
     },
     {
       "DownstreamPathTemplate": "/api/tasks/{everything}",
@@ -49,8 +49,9 @@
         "AllowedScopes": []
       },
       "ClaimsToHeaders": {
-        "X-User-Id": "Claims[http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier] > value",
-        "X-User-Email": "Claims[http://xmlsoap.org] > value"
+        "X-User-Id": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier",
+        "X-Username": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name",
+        "X-User-Email": "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
       }
 
     }

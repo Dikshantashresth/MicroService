@@ -28,14 +28,24 @@ namespace TaskService.Services
         }
         public async  Task<ApiResponse> AddTaskAsync(TaskModel tasks)
         {
-            var header = _contextAccessor.HttpContext?.Request.Headers;
-            header.TryGetValue("X-User-Id", out var userid);
-            _logger.LogInformation(userid);
+            var httpContext = _contextAccessor.HttpContext;
+
+            // Get user ID from JWT claims (same as GetTaskAsync)
+            var userId = httpContext?.User?.FindFirst("sub")?.Value 
+                      ?? httpContext?.User?.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value
+                      ?? httpContext?.Request.Headers["X-User-Id"].ToString();
+
+            _logger.LogInformation($"[TaskService AddTaskAsync] User ID: {userId}");
+
             if (string.IsNullOrEmpty(tasks.Title))
             {
                 _logger.LogWarning("Title is empty");
                 return new ApiResponse(400, "Fields Cannot be empty");
             }
+
+            // Set the UserId on the task
+            tasks.AuthorId = userId;
+
             await _unitofwork.Tasks.AddAsync(tasks);
             await _unitofwork.SaveChange();
             return new ApiResponse(tasks,"Successfully Added to Database");
@@ -44,18 +54,28 @@ namespace TaskService.Services
 
         public async Task<ApiResponse> GetTaskAsync()
         {
-            var headers = _contextAccessor.HttpContext?.Request.Headers;
+            var httpContext = _contextAccessor.HttpContext;
 
-            // Check if header is missing or empty string
-            if (headers == null || !headers.TryGetValue("X-User-Id", out var userid) || string.IsNullOrWhiteSpace(userid))
+            // Try to get user ID from JWT claims (populated by authentication middleware)
+            var userId = httpContext?.User?.FindFirst("sub")?.Value 
+                      ?? httpContext?.User?.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value
+                      ?? httpContext?.Request.Headers["X-User-Id"].ToString(); // Fallback to header if present
+
+            if (string.IsNullOrWhiteSpace(userId))
             {
-                _logger.LogError("SECURITY WARNING: X-User-Id header was missing or empty!");
+                _logger.LogError("[TaskService GetTaskAsync] SECURITY WARNING: User ID could not be retrieved from claims or headers!");
+                _logger.LogWarning($"[TaskService GetTaskAsync] User Identity: {httpContext?.User?.Identity?.IsAuthenticated}");
+                _logger.LogWarning($"[TaskService GetTaskAsync] Claims count: {httpContext?.User?.Claims.Count()}");
                 return new ApiResponse(401, "User Identity could not be verified by the service.");
             }
-            _logger.LogInformation(userid);
-            var tasks = await _unitofwork.Tasks.GetAllAsync(userid);
+
+            _logger.LogInformation($"[TaskService GetTaskAsync] Retrieved user ID: {userId}");
+            var tasks = await _unitofwork.Tasks.GetAllAsync(userId);
             _logger.LogDebug(tasks.ToString());
-            if (!tasks.Any()) return new ApiResponse(404, "No Tasks found");
+
+            if (!tasks.Any()) 
+                return new ApiResponse(404, "No Tasks found");
+
             return new ApiResponse(tasks);
         }
 

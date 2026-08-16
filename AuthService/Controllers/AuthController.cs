@@ -31,12 +31,12 @@ namespace AuthService.Controllers
         }
 
         /// <summary>
-        /// 
+        /// Validates user credentials and returns JWT token if valid.
         /// </summary>
-        /// <param name="request">Login Req data</param>
-        /// <returns></returns>
+        /// <param name="request">Login credentials (email and password)</param>
+        /// <returns>Returns user details with JWT token</returns>
         /// <response code="401">Invalid Credentials</response>
-        [HttpGet("login")]
+        [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginReq request)
         {
             var response = await _authService.LoginAsync(request);
