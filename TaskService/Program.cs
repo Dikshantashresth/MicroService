@@ -64,39 +64,6 @@ builder.Services.AddAuthentication("Bearer")
         };
     });
 
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("TrustedGatewayOnly", policy =>
-    {
-        policy.RequireAssertion(context =>
-        {
-            var user = context.User;
-            if (!user.Identity?.IsAuthenticated ?? false)
-            {
-                var logger = context.Resource is HttpContext httpContext 
-                    ? httpContext.RequestServices.GetRequiredService<ILogger<Program>>()
-                    : null;
-                logger?.LogWarning("[TaskService Auth] User is not authenticated");
-                return false;
-            }
-            var userId = user.FindFirst("sub")?.Value 
-                      ?? user.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value;
-
-            var isValid = !string.IsNullOrWhiteSpace(userId);
-
-            if (!isValid)
-            {
-                var logger = context.Resource is HttpContext httpContext 
-                    ? httpContext.RequestServices.GetRequiredService<ILogger<Program>>()
-                    : null;
-                logger?.LogWarning("[TaskService Auth] User ID claim is missing or empty");
-            }
-
-            return isValid;
-        });
-    });
-});
-
 var app = builder.Build();
 
 app.Use(async (context, next) =>
@@ -107,7 +74,6 @@ app.Use(async (context, next) =>
     logger.LogInformation($"[TaskService Headers] X-User-Id: {context.Request.Headers["X-User-Id"].FirstOrDefault() ?? "MISSING"}");
     logger.LogInformation($"[TaskService Headers] X-User-Email: {context.Request.Headers["X-User-Email"].FirstOrDefault() ?? "MISSING"}");
 
-    // Log ALL headers
     logger.LogInformation("[TaskService Headers] All incoming headers:");
     foreach (var header in context.Request.Headers)
     {

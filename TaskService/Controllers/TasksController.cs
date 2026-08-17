@@ -9,7 +9,7 @@ namespace TaskService.Controllers
     /// <response code="401">Unauthorized</response>
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Policy = "TrustedGatewayOnly")]
+    [Authorize]
     public class TasksController:ControllerBase
     {
         private readonly ITaskService _taskService;
@@ -65,12 +65,12 @@ namespace TaskService.Controllers
             var updatedTask = await _taskService.UpdateTaskAsync(tasks, id);
             return StatusCode(updatedTask.Status, updatedTask);
         }
+
         /// <summary>
         /// Finds whether the task exists or if task exists it deletes the task.
         /// </summary>
         /// <param name="id">Unique id to delete the particular task requested.</param>
         /// <returns>Returns the deleted task</returns>
-
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTask(string id)
         {

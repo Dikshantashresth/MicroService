@@ -1,5 +1,8 @@
-﻿namespace TaskService.Model
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace TaskService.Model
 {
+    [PrimaryKey(nameof(Id))]
     public class TaskModel
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();

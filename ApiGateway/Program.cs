@@ -35,13 +35,7 @@ var tokenvalidationparameters = new TokenValidationParameters
     ClockSkew = TimeSpan.Zero
 };
 
-// Log JWT configuration for debugging
-Console.WriteLine("=== GATEWAY JWT CONFIG ===");
-Console.WriteLine($"Issuer: {issuer}");
-Console.WriteLine($"Audience: {audience}");
-Console.WriteLine($"SecretKey Length: {secretKey?.Length ?? 0}");
-Console.WriteLine($"ValidateLifetime: {tokenvalidationparameters.ValidateLifetime}");
-Console.WriteLine("==========================");
+
 
 builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer("Bearer", options =>

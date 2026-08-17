@@ -21,6 +21,7 @@ namespace TaskService.Services
             if (id == null) return new ApiResponse(400, "Id is invalid");
             var task = await _unitofwork.Tasks.GetByIdAsync(id);
             if (task == null) return new ApiResponse(400, "Task doesnot exist");
+            _logger.LogInformation("Task: @{task}",task);
             await _unitofwork.Tasks.DeletedAsync(task);
             await _unitofwork.SaveChange();
             return new ApiResponse(task);
@@ -30,7 +31,6 @@ namespace TaskService.Services
         {
             var httpContext = _contextAccessor.HttpContext;
 
-            // Get user ID from JWT claims (same as GetTaskAsync)
             var userId = httpContext?.User?.FindFirst("sub")?.Value 
                       ?? httpContext?.User?.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier")?.Value
                       ?? httpContext?.Request.Headers["X-User-Id"].ToString();

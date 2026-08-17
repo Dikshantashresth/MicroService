@@ -10,7 +10,7 @@ namespace TaskService.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<TaskModel>().HasKey(x => x.AuthorId);
+            modelBuilder.Entity<TaskModel>().HasKey(x => x.Id);
         }
     }
 }
