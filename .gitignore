@@ -485,3 +485,4 @@ $RECYCLE.BIN/
 [Aa]ppsettings.*.json
 
 **/Migrations/
+ *.md
